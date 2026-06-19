@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>FISLAB II</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:linear-gradient(120deg,#0f172a,#1e293b);
+  color:white;
+}
+
+/* LOGIN */
+.login-box{
+  width:320px;
+  margin:10% auto;
+  padding:20px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(10px);
+  border-radius:15px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  background:#3b82f6;
+  border:none;
+  color:white;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* LAYOUT */
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  width:220px;
+  height:100vh;
+  background:#0b1220;
+  padding:20px;
+  display:none;
+}
+
+.sidebar a{
+  color:white;
+  display:block;
+  margin:10px 0;
+  text-decoration:none;
+  cursor:pointer;
+}
+
+.main{
+  margin-left:240px;
+  padding:20px;
+  display:none;
+}
+
+.card{
+  background:rgba(255,255,255,0.08);
+  padding:15px;
+  margin:10px 0;
+  border-radius:12px;
+  backdrop-filter:blur(10px);
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage" class="login-box">
+  <h2>Login FISLAB II</h2>
+
+  <input id="nrp" placeholder="NRP">
+  <input id="pass" type="password" placeholder="Password">
+
+  <button onclick="login()">Masuk</button>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <h3>FISLAB</h3>
+
+  <a onclick="show('home')">🏠 Home</a>
+  <a onclick="show('nilai')">📊 Nilai</a>
+  <a onclick="show('jadwal')">📅 Jadwal</a>
+  <a onclick="show('profile')">👤 Profil</a>
+  <a onclick="logout()">🚪 Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+<!-- HOME -->
+<div id="home" class="page">
+  <h2>Dashboard</h2>
+  <div class="card" id="infoUser"></div>
+</div>
+
+<!-- NILAI -->
+<div id="nilai" class="page" style="display:none;">
+  <h2>Nilai</h2>
+
+  <div id="nilaiList"></div>
+
+  <div id="formNilai" style="display:none;">
+    <input id="nama" placeholder="Nama">
+    <input id="modul" placeholder="Modul">
+    <input id="nilaiInput" placeholder="Nilai">
+    <button onclick="addNilai()">Tambah</button>
+  </div>
+</div>
+
+<!-- JADWAL -->
+<div id="jadwal" class="page" style="display:none;">
+  <h2>Jadwal</h2>
+
+  <div id="jadwalList"></div>
+
+  <div id="formJadwal" style="display:none;">
+    <input id="modulJ" placeholder="Modul">
+    <input id="tglJ" type="date">
+    <button onclick="addJadwal()">Tambah</button>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="page" style="display:none;">
+  <h2>Profil</h2>
+
+  <div class="card" id="profileInfo"></div>
+
+  <input id="newPass" placeholder="Update Password">
+  <button onclick="updatePass()">Update</button>
+</div>
+
+</div>
+
+<script>
+let user = null;
+let isAsisten = false;
+
+/* ================= LOGIN AUTO ROLE ================= */
+function login(){
+  const nrp = document.getElementById("nrp").value;
+  const pass = document.getElementById("pass").value;
+
+  // ASISTEN
+  if(nrp === "5001241080"){
+    if(pass === nrp){
+      user = nrp;
+      isAsisten = true;
+      startApp();
+    } else return alert("Password = NRP");
+    return;
+  }
+
+  // PRAKTIKAN
+  const num = parseInt(nrp);
+
+  if(num >= 5001251001 && num <= 5001251100){
+    if(pass === nrp){
+      user = nrp;
+      isAsisten = false;
+      startApp();
+    } else return alert("Password harus sama dengan NRP");
+  } else {
+    alert("NRP tidak terdaftar");
+  }
+}
+
+/* ================= START ================= */
+function startApp(){
+  document.getElementById("loginPage").style.display="none";
+  document.getElementById("sidebar").style.display="block";
+  document.getElementById("main").style.display="block";
+
+  document.getElementById("infoUser").innerHTML =
+    "NRP: "+user+"<br>Role: "+(isAsisten ? "Asisten" : "Praktikan");
+
+  if(isAsisten){
+    document.getElementById("formNilai").style.display="block";
+    document.getElementById("formJadwal").style.display="block";
+  }
+
+  loadAll();
+}
+
+/* ================= NAV ================= */
+function show(page){
+  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+  document.getElementById(page).style.display="block";
+}
+
+function logout(){
+  location.reload();
+}
+
+/* ================= NILAI ================= */
+function addNilai(){
+  let data = JSON.parse(localStorage.getItem("nilai")||"[]");
+
+  data.push({
+    nama:document.getElementById("nama").value,
+    modul:document.getElementById("modul").value,
+    nilai:document.getElementById("nilaiInput").value
+  });
+
+  localStorage.setItem("nilai",JSON.stringify(data));
+  loadNilai();
+}
+
+function loadNilai(){
+  let data = JSON.parse(localStorage.getItem("nilai")||"[]");
+
+  document.getElementById("nilaiList").innerHTML =
+    data.map(d=>`
+      <div class="card">${d.nama} | ${d.modul} | ${d.nilai}</div>
+    `).join("");
+}
+
+/* ================= JADWAL ================= */
+function addJadwal(){
+  let data = JSON.parse(localStorage.getItem("jadwal")||"[]");
+
+  data.push({
+    modul:document.getElementById("modulJ").value,
+    tgl:document.getElementById("tglJ").value
+  });
+
+  localStorage.setItem("jadwal",JSON.stringify(data));
+  loadJadwal();
+}
+
+function loadJadwal(){
+  let data = JSON.parse(localStorage.getItem("jadwal")||"[]");
+
+  document.getElementById("jadwalList").innerHTML =
+    data.map(d=>`
+      <div class="card">${d.modul} - ${d.tgl}</div>
+    `).join("");
+}
+
+/* ================= PROFILE ================= */
+function updatePass(){
+  localStorage.setItem("pass_"+user,
+    document.getElementById("newPass").value
+  );
+
+  alert("Password updated (simulasi)");
+}
+
+/* ================= LOAD ================= */
+function loadAll(){
+  loadNilai();
+  loadJadwal();
+}
+</script>
+
+</body>
+</html>
