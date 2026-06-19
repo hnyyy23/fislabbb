@@ -4,74 +4,114 @@
 <meta charset="UTF-8">
 <title>FISLAB II</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+
 <style>
 body{
   margin:0;
-  font-family:Segoe UI;
-  background:linear-gradient(120deg,#0f172a,#1e293b);
+  font-family:Inter;
+  background: radial-gradient(circle at top,#1e3a8a,#0f172a);
   color:white;
 }
 
-/* LOGIN */
+/* LOGIN CARD */
 .login-box{
-  width:320px;
-  margin:10% auto;
-  padding:20px;
+  width:340px;
+  margin:8% auto;
+  padding:25px;
   background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(10px);
-  border-radius:15px;
+  backdrop-filter:blur(20px);
+  border-radius:18px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.4);
+  animation:fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
 }
 
 input{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin:8px 0;
-  border-radius:8px;
+  border-radius:10px;
   border:none;
+  outline:none;
 }
 
 button{
   width:100%;
-  padding:10px;
-  background:#3b82f6;
+  padding:12px;
   border:none;
-  color:white;
   border-radius:10px;
+  background:linear-gradient(90deg,#3b82f6,#60a5fa);
+  color:white;
+  font-weight:bold;
   cursor:pointer;
+  transition:0.3s;
 }
 
-/* LAYOUT */
+button:hover{
+  transform:scale(1.03);
+}
+
+/* SIDEBAR */
 .sidebar{
   position:fixed;
   left:0;
   top:0;
-  width:220px;
+  width:230px;
   height:100vh;
-  background:#0b1220;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(15px);
   padding:20px;
   display:none;
+}
+
+.sidebar h3{
+  margin-bottom:20px;
 }
 
 .sidebar a{
-  color:white;
   display:block;
-  margin:10px 0;
+  color:white;
   text-decoration:none;
-  cursor:pointer;
+  margin:12px 0;
+  padding:10px;
+  border-radius:10px;
+  transition:0.3s;
 }
 
+.sidebar a:hover{
+  background:rgba(255,255,255,0.1);
+}
+
+/* MAIN */
 .main{
-  margin-left:240px;
-  padding:20px;
+  margin-left:250px;
+  padding:25px;
   display:none;
 }
 
+/* CARD */
 .card{
   background:rgba(255,255,255,0.08);
-  padding:15px;
-  margin:10px 0;
-  border-radius:12px;
-  backdrop-filter:blur(10px);
+  backdrop-filter:blur(15px);
+  padding:18px;
+  margin:12px 0;
+  border-radius:14px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.25);
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+}
+
+/* TITLE */
+h2{
+  font-size:28px;
 }
 </style>
 </head>
@@ -80,7 +120,8 @@ button{
 
 <!-- LOGIN -->
 <div id="loginPage" class="login-box">
-  <h2>Login FISLAB II</h2>
+  <h2>FISLAB II</h2>
+  <p style="opacity:0.7">Sistem Praktikum Fisika</p>
 
   <input id="nrp" placeholder="NRP">
   <input id="pass" type="password" placeholder="Password">
@@ -90,9 +131,9 @@ button{
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <h3>FISLAB</h3>
+  <h3>⚛ FISLAB</h3>
 
-  <a onclick="show('home')">🏠 Home</a>
+  <a onclick="show('home')">🏠 Dashboard</a>
   <a onclick="show('nilai')">📊 Nilai</a>
   <a onclick="show('jadwal')">📅 Jadwal</a>
   <a onclick="show('profile')">👤 Profil</a>
@@ -102,169 +143,88 @@ button{
 <!-- MAIN -->
 <div class="main" id="main">
 
-<!-- HOME -->
-<div id="home" class="page">
+<div id="home">
   <h2>Dashboard</h2>
   <div class="card" id="infoUser"></div>
 </div>
 
-<!-- NILAI -->
-<div id="nilai" class="page" style="display:none;">
-  <h2>Nilai</h2>
-
+<div id="nilai" style="display:none">
+  <h2>Nilai Praktikum</h2>
   <div id="nilaiList"></div>
-
-  <div id="formNilai" style="display:none;">
-    <input id="nama" placeholder="Nama">
-    <input id="modul" placeholder="Modul">
-    <input id="nilaiInput" placeholder="Nilai">
-    <button onclick="addNilai()">Tambah</button>
-  </div>
 </div>
 
-<!-- JADWAL -->
-<div id="jadwal" class="page" style="display:none;">
-  <h2>Jadwal</h2>
-
+<div id="jadwal" style="display:none">
+  <h2>Jadwal Praktikum</h2>
   <div id="jadwalList"></div>
-
-  <div id="formJadwal" style="display:none;">
-    <input id="modulJ" placeholder="Modul">
-    <input id="tglJ" type="date">
-    <button onclick="addJadwal()">Tambah</button>
-  </div>
 </div>
 
-<!-- PROFILE -->
-<div id="profile" class="page" style="display:none;">
+<div id="profile" style="display:none">
   <h2>Profil</h2>
-
-  <div class="card" id="profileInfo"></div>
-
-  <input id="newPass" placeholder="Update Password">
-  <button onclick="updatePass()">Update</button>
+  <div class="card">
+    <p id="profileInfo"></p>
+  </div>
 </div>
 
 </div>
 
 <script>
-let user = null;
-let isAsisten = false;
+let user=null;
 
-/* ================= LOGIN AUTO ROLE ================= */
+/* LOGIN */
 function login(){
-  const nrp = document.getElementById("nrp").value;
-  const pass = document.getElementById("pass").value;
+  const nrp=document.getElementById("nrp").value;
+  const pass=document.getElementById("pass").value;
 
-  // ASISTEN
-  if(nrp === "5001241080"){
-    if(pass === nrp){
-      user = nrp;
-      isAsisten = true;
-      startApp();
-    } else return alert("Password = NRP");
+  if(nrp==="5001241080" && pass===nrp){
+    user={nrp,role:"asisten"};
+    start();
     return;
   }
 
-  // PRAKTIKAN
-  const num = parseInt(nrp);
-
-  if(num >= 5001251001 && num <= 5001251100){
-    if(pass === nrp){
-      user = nrp;
-      isAsisten = false;
-      startApp();
-    } else return alert("Password harus sama dengan NRP");
-  } else {
-    alert("NRP tidak terdaftar");
+  if(nrp>=5001251001 && nrp<=5001251100 && pass===nrp){
+    user={nrp,role:"praktikan"};
+    start();
+    return;
   }
+
+  alert("Login gagal");
 }
 
-/* ================= START ================= */
-function startApp(){
+/* START */
+function start(){
   document.getElementById("loginPage").style.display="none";
   document.getElementById("sidebar").style.display="block";
   document.getElementById("main").style.display="block";
 
-  document.getElementById("infoUser").innerHTML =
-    "NRP: "+user+"<br>Role: "+(isAsisten ? "Asisten" : "Praktikan");
+  document.getElementById("infoUser").innerHTML=
+  `<b>NRP:</b> ${user.nrp}<br><b>Role:</b> ${user.role}`;
 
-  if(isAsisten){
-    document.getElementById("formNilai").style.display="block";
-    document.getElementById("formJadwal").style.display="block";
-  }
+  document.getElementById("profileInfo").innerText=
+  `NRP: ${user.nrp}`;
 
-  loadAll();
+  loadDummy();
 }
 
-/* ================= NAV ================= */
-function show(page){
-  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
-  document.getElementById(page).style.display="block";
+/* NAV */
+function show(id){
+  document.querySelectorAll("#main > div").forEach(d=>d.style.display="none");
+  document.getElementById(id).style.display="block";
 }
 
+/* LOGOUT */
 function logout(){
   location.reload();
 }
 
-/* ================= NILAI ================= */
-function addNilai(){
-  let data = JSON.parse(localStorage.getItem("nilai")||"[]");
+/* DATA DUMMY */
+function loadDummy(){
+  document.getElementById("nilaiList").innerHTML=
+  `<div class="card">MP1 - 85</div>
+   <div class="card">MP2 - 90</div>`;
 
-  data.push({
-    nama:document.getElementById("nama").value,
-    modul:document.getElementById("modul").value,
-    nilai:document.getElementById("nilaiInput").value
-  });
-
-  localStorage.setItem("nilai",JSON.stringify(data));
-  loadNilai();
-}
-
-function loadNilai(){
-  let data = JSON.parse(localStorage.getItem("nilai")||"[]");
-
-  document.getElementById("nilaiList").innerHTML =
-    data.map(d=>`
-      <div class="card">${d.nama} | ${d.modul} | ${d.nilai}</div>
-    `).join("");
-}
-
-/* ================= JADWAL ================= */
-function addJadwal(){
-  let data = JSON.parse(localStorage.getItem("jadwal")||"[]");
-
-  data.push({
-    modul:document.getElementById("modulJ").value,
-    tgl:document.getElementById("tglJ").value
-  });
-
-  localStorage.setItem("jadwal",JSON.stringify(data));
-  loadJadwal();
-}
-
-function loadJadwal(){
-  let data = JSON.parse(localStorage.getItem("jadwal")||"[]");
-
-  document.getElementById("jadwalList").innerHTML =
-    data.map(d=>`
-      <div class="card">${d.modul} - ${d.tgl}</div>
-    `).join("");
-}
-
-/* ================= PROFILE ================= */
-function updatePass(){
-  localStorage.setItem("pass_"+user,
-    document.getElementById("newPass").value
-  );
-
-  alert("Password updated (simulasi)");
-}
-
-/* ================= LOAD ================= */
-function loadAll(){
-  loadNilai();
-  loadJadwal();
+  document.getElementById("jadwalList").innerHTML=
+  `<div class="card">Konstanta Planck - 12 Mei</div>
+   <div class="card">Franck Hertz - 20 Mei</div>`;
 }
 </script>
 
